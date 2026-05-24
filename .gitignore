@@ -1,0 +1,45 @@
+# Secrets and credentials
+.env
+.env.local
+!.env.example
+*.pem
+
+# Local-only workspace (AI notes, GUI tools, personal todos)
+_private/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Large data and model weights
+target_model/
+suspect_models/
+data/cifar100/
+.cache/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs (keep folder via .gitkeep)
+results/logs/*.log
+
+# Report build artifacts (keep sources)
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.bbl
+report/*.blg
+report/*.pdf
