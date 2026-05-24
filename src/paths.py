@@ -17,6 +17,12 @@ RESULTS_DIR = ROOT / "results"
 SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 SCORES_DIR = RESULTS_DIR / "scores"
 LOGS_DIR = RESULTS_DIR / "logs"
+CACHE_DIR = RESULTS_DIR / "cache"
+CLUSTER_SCORES_DIR = RESULTS_DIR / "cluster_scores"
+FEATURES_DIR = RESULTS_DIR / "features"
+FORENSIC_TARGET_CACHE = CACHE_DIR / "forensic_target.pt"
+
+TARGET_LOGITS_CACHE = CACHE_DIR / "target_logits_40k.pt"
 
 HF_REPO = "SprintML/tml26_task2"
 NUM_SUSPECTS = 360

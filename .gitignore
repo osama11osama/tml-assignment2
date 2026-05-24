@@ -32,8 +32,12 @@ data/cifar100/
 Thumbs.db
 *.swp
 
-# Logs (keep folder via .gitkeep)
+# Logs and heavy caches (keep folder via .gitkeep)
 results/logs/*.log
+results/features/*.parquet
+results/cache/*
+!results/cache/.gitkeep
+results/cluster_scores/score_*.json
 
 # Report build artifacts (keep sources)
 report/*.aux

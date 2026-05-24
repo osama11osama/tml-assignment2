@@ -12,7 +12,26 @@ Given one **target** model and **360 suspect** models (same architecture, CIFAR-
 
 **Rationale:** Direct copies and fine-tunes retain similar weight vectors.
 
-**Limitation:** Distilled or quantized models may differ in weights while behaving similarly → v002 will use logit comparison.
+**Limitation:** Distilled or quantized models may differ in weights while behaving similarly → use v002 logit comparison.
+
+## v002 — logit cosine similarity (primary method)
+
+1. Load probe images from `train_main_idx.json` (CIFAR-100 train, eval transform).
+2. Precompute target logits on probe set; cache to `results/cache/target_logits_40k.pt`.
+3. For each suspect: forward on same images → mean per-image cosine similarity vs target logits.
+4. Higher score = more similar behavior = more likely stolen.
+
+**Local smoke test:**
+```powershell
+python scripts/score_logit_similarity.py --subset 256 --suspects 0,1
+```
+
+**Full run (GPU recommended):**
+```powershell
+python scripts/score_logit_similarity.py --device cuda
+```
+
+**Cluster:** see `docs/CLUSTER.md`.
 
 ## Evaluation
 

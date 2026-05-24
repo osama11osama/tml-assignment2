@@ -1,0 +1,33 @@
+# Forensic pipeline defaults — tuned for generalization, not public LB overfit
+seed: 42
+
+probe:
+  train_main: 4000      # train_main_idx subset (raise to 40000 for final)
+  test: 2000            # CIFAR-100 test subset
+  batch_size: 128
+  num_workers: 0
+
+stages:
+  weights: true
+  behavioral: true
+  representations: true
+  augmentation: true
+  adversarial: false    # expensive; enable via CLI
+
+augmentation:
+  n_aug_samples: 256    # images for stability fingerprint
+  n_aug_views: 4        # random aug views per image
+
+adversarial:
+  n_images: 64
+  epsilon: 0.031372549  # 8/255
+
+ensemble:
+  method: rank_weighted  # rank_weighted | isolation_forest
+  # Higher weight = more influence on final rank (behavioral dominates)
+  weights:
+    behavioral: 3.0
+    representations: 2.0
+    augmentation: 1.5
+    weights: 0.25
+    adversarial: 0.5

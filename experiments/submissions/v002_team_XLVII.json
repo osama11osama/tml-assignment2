@@ -1,0 +1,33 @@
+{
+  "version": "v002",
+  "method": "logit_cosine_train_main",
+  "team": "team_XLVII",
+  "metric": "TPR@FPR=0.05",
+  "leaderboard": {
+    "public_tpr": 0.537037,
+    "submitted_utc": "2026-05-24",
+    "notes": "First successful behavioral baseline after v001 (0.0)."
+  },
+  "artifact": {
+    "csv": "results/submissions/submission_v002_logit_train.csv",
+    "rows": 360,
+    "score_min": 0.1199230924248695,
+    "score_max": 1.0,
+    "score_mean": 0.7602559304692679,
+    "score_median": 0.8858257234096527
+  },
+  "reproduce": {
+    "script": "scripts/score_logit_similarity.py",
+    "command": "python scripts/score_logit_similarity.py --subset 1000 --device cuda --batch-size 64",
+    "probe": "data/train_main_idx.json (first 1000 indices)",
+    "scoring": "Per-image cosine similarity between suspect and target logits; mean over probe images.",
+    "models": "target_model/weights.safetensors + suspect_models/suspect_XXX.safetensors (local, not in git)",
+    "cache": "results/cache/target_logits_40k.pt (generated on first run; gitignored)",
+    "submit": "python submission.py results/submissions/submission_v002_logit_train.csv"
+  },
+  "dependencies": {
+    "requirements": "requirements.txt at tag time",
+    "pytorch_note": "CUDA build required for GPU; RTX 50xx may need cu128 nightly wheel."
+  },
+  "git_tag": "v0.2-logit-0.537"
+}
