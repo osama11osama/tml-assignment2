@@ -57,7 +57,8 @@ def agg_named(values: Iterable[float], prefix: str) -> dict[str, float]:
 
 def rank_normalize_series(s: pd.Series, higher_is_suspicious: bool = True) -> pd.Series:
     """Rank across suspects in [0, 1]; 1 = most suspicious."""
-    r = s.rank(method="average", ascending=not higher_is_suspicious)
+    # ascending=True → largest raw value gets rank N → normalized score 1.0
+    r = s.rank(method="average", ascending=higher_is_suspicious)
     return (r - 1) / max(len(s) - 1, 1)
 
 

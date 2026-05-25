@@ -1,0 +1,105 @@
+% TML Assignment 2 — Stolen Model Detection (max 2 pages)
+% Compile: pdflatex paper.tex  (twice if references added later)
+
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[margin=0.75in]{geometry}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xspace}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+
+\title{\textbf{Stolen Model Detection via Behavioral Fingerprinting}\\
+\large Trustworthy Machine Learning --- Assignment 2}
+
+\author{
+  Team: \textbf{team\_XLVII} \quad
+  Matriculation: \textbf{[YOUR\_NUMBER]} \\
+  \texttt{osama11osama/tml-assignment2}
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We detect stolen ResNet-18 classifiers among 360 suspects by scoring behavioral similarity to a victim target on CIFAR-100 probe images.
+Weight-based similarity failed completely (TPR@5\%FPR = 0).
+Logit cosine similarity on the victim's training indices (\texttt{train\_main\_idx}) reached \textbf{0.537} on the public leaderboard.
+A multi-stage forensic ensemble did not improve the public score; full 40k-probe scoring is in progress.
+\end{abstract}
+
+\section{Task and threat model}
+The victim releases a target model and 360 suspect models (ResNet-18, CIFAR-100).
+We assign each suspect a score in $[0,1]$; higher means more likely stolen (copy, fine-tune, distill, quantize).
+Evaluation uses \textbf{TPR at 5\% FPR}: at most 5\% of genuine models may be flagged while maximizing stolen models caught.
+We have white-box access to all weights and to \texttt{train\_main\_idx.json} (40{,}000 training indices used by the victim).
+
+\section{Methods}
+\subsection{v001: Global weight cosine (baseline)}
+All parameters are flattened; cosine similarity to the target defines the score.
+\textbf{Rationale:} copied weights should be close.
+\textbf{Result:} failed---scores cluster near 1.0 for all ResNets; no usable ranking.
+
+\subsection{v002: Logit similarity on victim probes (main method)}
+For probe images $x$ from \texttt{train\_main\_idx}, we compute logits $z_T(x)$ and $z_S(x)$ and average per-image cosine similarity:
+\begin{equation}
+  \mathrm{score}(S) = \frac{1}{N}\sum_{i=1}^{N}
+  \frac{z_T(x_i)^\top z_S(x_i)}{\|z_T(x_i)\|\,\|z_S(x_i)\|}.
+\end{equation}
+\textbf{Rationale:} knockoff/distilled models match the teacher's \emph{decisions} even when weights differ.
+
+\subsection{v003: Forensic rank ensemble (explored)}
+Per suspect we extract behavioral, representation (linear CKA), augmentation-stability, and layer-wise weight features; fuse via rank-weighted averaging (no leaderboard tuning).
+\textbf{Rationale:} complementary signals for private-set generalization.
+\textbf{Result:} Spearman $\approx 0.94$ vs.\ v002; public TPR unchanged at 0.537.
+
+\section{Experiments}
+\begin{table}[t]
+  \centering
+  \caption{Leaderboard submissions (public split, TPR@FPR=0.05).}
+  \label{tab:results}
+  \small
+  \begin{tabular}{@{}llc@{}}
+    \toprule
+    Version & Probe set & Public TPR \\
+    \midrule
+    v001 & weights only & 0.000 \\
+    v002 & 1{,}000 train\_main & \textbf{0.537} \\
+    v003 & 4k train + 2k test & 0.537 \\
+    v004 & 40k train\_main & \textit{TBD} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textbf{Setup.} Models from HuggingFace \texttt{SprintML/tml26\_task2}; PyTorch + safetensors; GPU inference (local RTX 5060, RunPod RTX 3090).
+Target logits are precomputed once and cached.
+
+\textbf{Reproducibility.} Code: \texttt{scripts/score\_logit\_similarity.py}, tag \texttt{v0.2-logit-0.537}.
+Submit: \texttt{python submission.py results/submissions/submission\_v002\_logit\_train.csv}.
+
+\section{Discussion}
+Behavioral fingerprinting on the victim's training distribution is necessary: architecture alone is insufficient.
+Increasing probes from 1k to 4k in the ensemble did not move the public ranking at the 5\% FPR operating point---likely because v002 already captures the dominant logit signal.
+We avoid heavy hyperparameter search on the public leaderboard (30\% of grade) to limit overfitting; private 70\% may still benefit from 40k probes.
+
+\section{Planned next phases}
+\textit{(Update before final CMS hand-in.)}
+\begin{itemize}
+  \item \textbf{v004 (in progress):} full 40{,}000 \texttt{train\_main\_idx} logit scoring on RunPod; resumable per-suspect JSON checkpoints.
+  \item \textbf{Cluster:} HTCondor parallel jobs (360 suspects) once Saarland HPC access is stable---target $\sim$30\,min wall time vs.\ 2\,h single GPU.
+  \item \textbf{Submit:} upload best CSV if v004 improves public/private TPR; else keep v002.
+  \item \textbf{Report/CMS:} finalize matriculation number, compile this PDF, ZIP code per course checklist.
+\end{itemize}
+
+\section*{References}
+\small
+J. Li et al., ``Knockoff Nets,'' NeurIPS 2018.
+Course materials: Stolen Model Detection (Tutorial 3), TML 2026.
+
+\end{document}

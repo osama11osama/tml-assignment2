@@ -11,13 +11,32 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets
 
 from src.model_utils import get_eval_transform
-from src.paths import CIFAR100_DIR, TRAIN_MAIN_IDX
+from src.paths import CIFAR100_DIR, TRAIN_MAIN_IDX, TRAIN_UNUSED_IDX
 
-ProbeName = Literal["train_main", "test"]
+ProbeName = Literal["train_main", "test", "train_unused"]
 
 
 def load_train_main_indices(path: Path | None = None, subset: int | None = None) -> list[int]:
     path = path or TRAIN_MAIN_IDX
+    with open(path, encoding="utf-8") as f:
+        indices = json.load(f)
+    if subset is not None:
+        indices = indices[:subset]
+    return indices
+
+
+def load_train_unused_indices(path: Path | None = None, subset: int | None = None) -> list[int]:
+    """
+    CIFAR-100 train indices NOT in train_main_idx (~10k).
+    Cached to data/train_unused_idx.json on first call.
+    """
+    path = path or TRAIN_UNUSED_IDX
+    if not path.exists():
+        with open(TRAIN_MAIN_IDX, encoding="utf-8") as f:
+            main = set(json.load(f))
+        unused = [i for i in range(50_000) if i not in main]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(unused), encoding="utf-8")
     with open(path, encoding="utf-8") as f:
         indices = json.load(f)
     if subset is not None:
@@ -50,6 +69,10 @@ def get_probe_dataloader(
     if probe == "train_main":
         indices = load_train_main_indices(subset=subset)
         ds: Dataset = _IndexedCIFAR100Train(root, indices)
+        n = len(indices)
+    elif probe == "train_unused":
+        indices = load_train_unused_indices(subset=subset)
+        ds = _IndexedCIFAR100Train(root, indices)
         n = len(indices)
     elif probe == "test":
         full = datasets.CIFAR100(

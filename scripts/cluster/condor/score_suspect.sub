@@ -1,0 +1,16 @@
+# 360 parallel jobs — suspect id = $(Process)
+universe = docker
+docker_image = pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel
+executable = /opt/conda/bin/python
+arguments = /home/atml_team044/tml26_task2/scripts/cluster/score_one_suspect.py $(Process) --batch-size 128 --device cuda --cache /home/atml_team044/tml26_task2/results/cache/target_logits_40k.pt --out-dir /home/atml_team044/tml26_task2/results/cluster_scores
+output = /home/atml_team044/tml26_task2/runlogs/score_$(Process).$(ClusterId).out
+error = /home/atml_team044/tml26_task2/runlogs/score_$(Process).$(ClusterId).err
+log = /home/atml_team044/tml26_task2/runlogs/score.log
+should_transfer_files = YES
+request_GPUs = 1
+request_CPUs = 2
+request_memory = 16G
+requirements = UidDomain == "cs.uni-saarland.de"
++WantGPUHomeMounted = true
++WantScratchMounted = true
+queue 360

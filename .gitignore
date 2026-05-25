@@ -38,6 +38,13 @@ results/features/*.parquet
 results/cache/*
 !results/cache/.gitkeep
 results/cluster_scores/score_*.json
+results/cache_master/*
+!results/cache_master/config.json
+!results/cache_master/variants/
+results/cache_master/variants/*
+!results/cache_master/variants/variant_comparison.json
+results/cache_master_local_backup/
+results.zip
 
 # Report build artifacts (keep sources)
 report/*.aux

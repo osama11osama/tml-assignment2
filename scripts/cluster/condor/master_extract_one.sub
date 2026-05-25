@@ -1,0 +1,26 @@
+# 360 parallel GPU jobs — one suspect per job (Process = suspect id 0..359).
+# Requires: results/cache_master/config.json (run master_target.sub first).
+# Verify weights: bash scripts/cluster/verify_models.sh
+#
+# Submit:  condor_submit condor/master_extract_one.sub
+# Monitor: condor_q; python scripts/master_status.py
+#
+# Edit USER path if not atml_team044.
+
+universe = docker
+docker_image = pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel
+executable = /bin/bash
+arguments = /home/atml_team044/tml26_task2/condor/run_master_extract_one.sh $(Process)
+output = /home/atml_team044/tml26_task2/runlogs/master_extract_$(Process).$(ClusterId).out
+error = /home/atml_team044/tml26_task2/runlogs/master_extract_$(Process).$(ClusterId).err
+log = /home/atml_team044/tml26_task2/runlogs/master_extract.log
+should_transfer_files = YES
+environment = "PROJECT_ROOT=/home/atml_team044/tml26_task2"
+request_GPUs = 1
+request_CPUs = 2
+request_memory = 20G
+max_idle = 96
+requirements = UidDomain == "cs.uni-saarland.de"
++WantGPUHomeMounted = true
++WantScratchMounted = true
+queue 360

@@ -17,6 +17,7 @@ HF="https://huggingface.co/SprintML/tml26_task2/resolve/main"
 # Target + indices (~45 MB + small json)
 wget -nc "$HF/target_model/weights.safetensors" -O target_model/weights.safetensors
 wget -nc "$HF/target_model/train_main_idx.json" -O data/train_main_idx.json
+# (NOT data/train_main_idx.json on HuggingFace)
 
 # All 360 suspects (~16 GB total — run in screen/tmux, takes hours)
 for i in $(seq -f "%03g" 0 359); do
@@ -50,8 +51,9 @@ $LOCAL = "C:\Users\Osama\Master\SS2026\01_Trustworthy Machine Learning\Assignmen
 $REMOTE = "atml_team044@conduit2.hpc.uni-saarland.de"
 
 scp -r "$LOCAL\src" "$LOCAL\scripts" "${REMOTE}:~/tml26_task2/"
-scp "$LOCAL\_private\setup\condor\precompute_target.sub" "${REMOTE}:~/tml26_task2/condor/"
-scp "$LOCAL\_private\setup\condor\score_suspect.sub" "${REMOTE}:~/tml26_task2/condor/"
+scp "$LOCAL\scripts\cluster\condor\precompute_target.sub" "${REMOTE}:~/tml26_task2/condor/"
+scp "$LOCAL\scripts\cluster\condor\score_suspect.sub" "${REMOTE}:~/tml26_task2/condor/"
+# Important: Saarland uses universe=docker (NOT vanilla). Files in scripts/cluster/condor/
 ```
 
 **Alternative (no scp):** clone your GitHub repo on cluster (code only, no weights in git):
@@ -79,7 +81,7 @@ ls -lh results/cache/target_logits_40k.pt
 condor_submit condor/score_suspect.sub
 condor_q
 
-/opt/conda/bin/python scripts/cluster/merge_scores.py
+/opt/conda/bin/python scripts/cluster/merge_scores.py --output submission_v002_logit_40k.csv
 ```
 
 CIFAR-100 auto-downloads to `data/cifar100/` on first job.

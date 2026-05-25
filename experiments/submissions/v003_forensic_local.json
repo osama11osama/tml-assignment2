@@ -1,0 +1,33 @@
+{
+  "version": "v003",
+  "method": "forensic_rank_ensemble",
+  "metric": "TPR@FPR=0.05",
+  "leaderboard": {
+    "public_tpr": 0.537037,
+    "submission_id": 1617,
+    "submitted_utc": "2026-05-24",
+    "notes": "Same public TPR as v002 — rankings highly correlated (Spearman ~0.94); metric at 5% FPR is insensitive to this fusion."
+  },
+  "artifact": {
+    "csv": "results/submissions/submission_v003_forensic.csv",
+    "rows": 360,
+    "score_min": 0.171511,
+    "score_max": 0.846683,
+    "score_mean": 0.5,
+    "spearman_vs_v002": 0.936625
+  },
+  "fixes": [
+    "rank_normalize_series: ascending flag corrected so higher similarity → higher score"
+  ],
+  "reproduce": {
+    "steps": [
+      "python scripts/forensic_precompute_target.py --probe-train 4000 --probe-test 2000 --device cuda --batch-size 128",
+      "python scripts/forensic_extract.py --device cuda --probe-train 4000 --probe-test 2000 --batch-size 128",
+      "python scripts/forensic_ensemble.py --output submission_v003_forensic.csv"
+    ],
+    "runtime_local_gpu": "~59 min extract (360 suspects) + ~15 s target cache",
+    "config": "configs/forensic_default.yaml",
+    "ensemble": "rank_weighted (behavioral > repr > aug > weights)"
+  },
+  "git_tag": null
+}

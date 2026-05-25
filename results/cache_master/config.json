@@ -1,0 +1,11 @@
+{
+  "probe_train_40k": 40000,
+  "probe_train_unused": 10000,
+  "probe_test_10k": 10000,
+  "probe_train_4k": 4000,
+  "probe_test_2k": 2000,
+  "aug_images": 256,
+  "aug_views": 4,
+  "aug_seed": 42,
+  "version": 2
+}

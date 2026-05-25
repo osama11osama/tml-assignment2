@@ -1,0 +1,18 @@
+# Saarland HPC (conduit2) — GPU via Docker universe.
+# Edit USER if not atml_team044:  sed -i 's/atml_team044/YOUR_USER/' *.sub
+
+universe = docker
+docker_image = pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel
+executable = /opt/conda/bin/python
+arguments = /home/atml_team044/tml26_task2/scripts/cluster/precompute_target_logits.py --batch-size 128 --device cuda --cache /home/atml_team044/tml26_task2/results/cache/target_logits_40k.pt
+output = /home/atml_team044/tml26_task2/runlogs/precompute.$(ClusterId).out
+error = /home/atml_team044/tml26_task2/runlogs/precompute.$(ClusterId).err
+log = /home/atml_team044/tml26_task2/runlogs/precompute.log
+should_transfer_files = YES
+request_GPUs = 1
+request_CPUs = 2
+request_memory = 16G
+requirements = UidDomain == "cs.uni-saarland.de"
++WantGPUHomeMounted = true
++WantScratchMounted = true
+queue 1
